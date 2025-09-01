@@ -134,6 +134,8 @@ export const updateLead = async (req, res) => {
       new: true,
     }).populate("assignedAgent", "name email");
 
+    await logActivity(req.user._id, "update lead", "Lead", lead._id);
+
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });

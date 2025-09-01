@@ -65,6 +65,8 @@ export const updateUser = asyncHandler(async (req, res) => {
   }
 
   const updatedUser = await user.save();
+
+  await logActivity(req.user._id, "updated user", "User", updatedUser._id);
   res.json({
     _id: updatedUser._id,
     name: updatedUser.name,
@@ -83,7 +85,8 @@ export const deleteUser = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-
+  await logActivity(req.user._id, "updated user", "User", user._id);
   await user.deleteOne();
+  
   res.json({ message: "User removed", id: user._id });
 });
