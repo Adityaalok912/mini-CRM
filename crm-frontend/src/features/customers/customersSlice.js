@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
+import api from "../../utils/api";
 const API_URL = "/api/customers";
 
 // Async thunks for customer operations
@@ -17,7 +17,7 @@ export const getCustomers = createAsyncThunk(
       // const response = await axios.get(API_URL, config);
 
       const { auth } = thunkAPI.getState();
-      const response = await axios.get(`http://localhost:5000/api/customers`, {
+      const response = await api.get(`http://localhost:5000/api/customers`, {
         params: { page },
         headers: {
           Authorization: `Bearer ${auth.user.accesstoken}`,
@@ -48,7 +48,7 @@ export const getCustomerById = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.get(`${API_URL}/${id}`, config);
+      const response = await api.get(`${API_URL}/${id}`, config);
       return response.data;
     } catch (error) {
       const message =
@@ -72,7 +72,7 @@ export const createCustomer = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post(API_URL, customerData, config);
+      const response = await api.post(API_URL, customerData, config);
       return response.data;
     } catch (error) {
       const message =
@@ -96,7 +96,7 @@ export const updateCustomer = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.patch(
+      const response = await api.patch(
         `${API_URL}/${id}`,
         customerData,
         config
@@ -124,7 +124,7 @@ export const addNoteToCustomer = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post(
+      const response = await api.post(
         `${API_URL}/${id}/notes`,
         { body: note },
         config
@@ -152,7 +152,7 @@ export const deleteCustomer = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.delete(`${API_URL}/${id}`, config);
+      await api.delete(`${API_URL}/${id}`, config);
       return id; // Return the ID of the deleted customer
     } catch (error) {
       const message =
@@ -173,7 +173,7 @@ export const getCustomersCount = createAsyncThunk(
     try {
       const token = thunkAPI.getState().auth.user.accesstoken;
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get(`${API_URL}/count`, config);
+      const res = await api.get(`${API_URL}/count`, config);
       return res.data.totalCustomers;
     } catch (error) {
       const message =

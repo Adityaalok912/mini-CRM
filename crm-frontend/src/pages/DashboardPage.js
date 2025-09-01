@@ -16,7 +16,10 @@ import {
   getLeadsStatusCount,
 } from "../features/leads/leadsSlice";
 import { getCustomersCount } from "../features/customers/customersSlice";
-import { getOpenTasksCount } from "../features/tasks/tasksSlice";
+import {
+  getOpenTasksCount,
+  getOverdueTasks,
+} from "../features/tasks/tasksSlice";
 
 const Card = ({ title, count }) => (
   <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-between">
@@ -36,7 +39,7 @@ export default function DashboardPage() {
     statusCount: leadsStatusCount,
   } = useSelector((state) => state.leads);
   const { count: customerCount } = useSelector((state) => state.customers);
-  const { openCount: openTasks } = useSelector((state) => state.tasks);
+  const { openCount: openTasks, overdue } = useSelector((state) => state.tasks);
   // TODO: replace with real slices later
   const leads = []; // from leadsSlice
   const customers = []; // from customersSlice
@@ -48,6 +51,7 @@ export default function DashboardPage() {
     dispatch(getCustomersCount());
     dispatch(getLeadsStatusCount());
     dispatch(getOpenTasksCount());
+    dispatch(getOverdueTasks());
   }, [dispatch]);
 
   // === Analytics Counts ===
@@ -127,6 +131,36 @@ export default function DashboardPage() {
           </ul>
         ) : (
           <p>No recent activity.</p>
+        )}
+      </div>
+      {/* Overdue Tasks */}
+      <div className="bg-white rounded-xl shadow-md p-6 mt-6">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">
+          Overdue Tasks
+        </h3>
+        {overdue.length === 0 ? (
+          <p>No overdue tasks </p>
+        ) : (
+          <table className="min-w-full border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-2 text-left">Title</th>
+                <th className="px-4 py-2 text-left">Due Date</th>
+                <th className="px-4 py-2 text-left">Owner</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overdue.map((task) => (
+                <tr key={task._id} className="border-t">
+                  <td className="px-4 py-2">{task.title}</td>
+                  <td className="px-4 py-2 text-red-600">
+                    {new Date(task.dueDate).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-2">{task.owner?.name || "N/A"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

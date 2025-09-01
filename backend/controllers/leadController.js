@@ -1,4 +1,5 @@
 import Lead from "../models/leadModel.js";
+import User from "../models/userModel.js";
 import Customer from "../models/customerModel.js";
 import { logActivity } from "./activityController.js";
 
@@ -15,6 +16,9 @@ export const getLeads = async (req, res) => {
     const filter =
       req.user.role === "agent" ? { assignedAgent: req.user._id } : {};
     if (req.query.status) filter.status = req.query.status;
+     if (req.query.search) {
+      filter.name = { $regex: req.query.search, $options: "i" }; // case-insensitive search
+    }
     filter.archived = false;
 
     const totalLeads = await Lead.countDocuments(filter); // Find the leads with skip and limit for pagination
@@ -102,7 +106,7 @@ export const createLead = async (req, res) => {
 };
 
 // @desc    Update lead
-//route Patch /api/leads/:id
+//route PATCH /api/leads/:id
 //@access Private
 export const updateLead = async (req, res) => {
   try {
@@ -116,11 +120,19 @@ export const updateLead = async (req, res) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
+    
+    if (req.body.agentEmail) {
+      const agent = await User.findOne({ email: req.body.agentEmail });
+      if (!agent) {
+        return res.status(400).json({ message: "Agent with this email not found" });
+      }
+      req.body.assignedAgent = agent._id;
+      delete req.body.agentEmail; // clean up
+    }
+
     const updated = await Lead.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    });
-
-    await logActivity(req.user._id, "updated lead", "Lead", lead._id);
+    }).populate("assignedAgent", "name email");
 
     res.json(updated);
   } catch (error) {

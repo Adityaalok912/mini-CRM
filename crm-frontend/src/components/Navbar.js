@@ -46,13 +46,21 @@ const Navbar = () => {
         Tasks
       </Link>
       {user?.role === "admin" && (
-        <Link
-          to="/register"
-          className="block px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100"
-          onClick={() => setIsOpen(false)}
-        >
-          Register
-        </Link>
+        <>
+          <Link
+            to="/register"
+            className="block px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100"
+            onClick={() => setIsOpen(false)}
+          >
+            Register
+          </Link>
+          <Link
+            to="/users"
+            className="block px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100"
+          >
+            Users
+          </Link>
+        </>
       )}
     </>
   );

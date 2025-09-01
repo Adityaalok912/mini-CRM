@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
+import api from "../../utils/api";
 // Get user from localStorage
 const user = JSON.parse(localStorage.getItem('user'));
 
@@ -13,6 +13,15 @@ const initialState = {
 
 const API_URL = '/api/auth';
 
+// refresh access token
+export const refreshAccessToken = createAsyncThunk(
+  "auth/refresh",
+  async (newAccessToken, thunkAPI) => {
+    return newAccessToken; // simply pass token to reducer
+  }
+);
+
+
 // Register user (admin only)
 export const register = createAsyncThunk(
   "auth/register",
@@ -24,7 +33,7 @@ export const register = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post(`${API_URL}/register`, userData, config);
+      const response = await api.post(`${API_URL}/register`, userData, config);
       return response.data;
     } catch (error) {
       const message =
@@ -42,7 +51,7 @@ export const register = createAsyncThunk(
 // Login user
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData);
+    const response = await api.post(`${API_URL}/login`, userData);
     if (response.data) {
       localStorage.setItem('user', JSON.stringify(response.data));
     }
@@ -88,7 +97,12 @@ export const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state) => {
         state.status = 'succeeded';
-      });
+      })
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+      if (state.user) {
+        state.user.accesstoken = action.payload; 
+      }
+    });
   },
 });
 

@@ -46,6 +46,8 @@ const LeadDetailPage = () => {
         phone: lead.phone || "",
         status: lead.status || "New",
         source: lead.source || "",
+        assignedAgent: lead.assignedAgent || "",
+        agentEmail: lead.assignedAgent.email,
       });
     }
   }, [lead]);
@@ -163,6 +165,16 @@ const LeadDetailPage = () => {
               }
               className="w-full p-2 border rounded-lg"
               placeholder="Source"
+            />
+            <input
+              type="email"
+              name="agentEmail"
+              value={formData.agentEmail || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, agentEmail: e.target.value })
+              }
+              className="w-full border px-3 py-2 rounded"
+              placeholder="Enter agent's email"
             />
             <select
               name="status"

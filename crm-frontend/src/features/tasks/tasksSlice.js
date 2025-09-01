@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../../utils/api";
 
 const API_URL = "/api/tasks";
 
@@ -15,7 +16,7 @@ export const getTasks = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.get(API_URL, config);
+      const response = await api.get(API_URL, config);
       return response.data;
     } catch (error) {
       const message =
@@ -39,7 +40,7 @@ export const deleteTask = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.delete(`${API_URL}/${id}`, config);
+      await api.delete(`${API_URL}/${id}`, config);
       return id;
     } catch (error) {
       const message =
@@ -58,7 +59,7 @@ export const updateTaskStatus = createAsyncThunk(
   async ({ id, status }, thunkAPI) => {
     try {
       const { auth } = thunkAPI.getState();
-      const response = await axios.patch(
+      const response = await api.patch(
         `http://localhost:5000/api/tasks/${id}`,
         { status },
         {
@@ -86,7 +87,7 @@ export const createTask = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post(API_URL, taskData, config);
+      const response = await api.post(API_URL, taskData, config);
       return response.data;
     } catch (error) {
       const message =
@@ -110,7 +111,7 @@ export const updateTask = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.patch(`${API_URL}/${id}`, taskData, config);
+      const response = await api.patch(`${API_URL}/${id}`, taskData, config);
       return response.data;
     } catch (error) {
       const message =
@@ -130,7 +131,7 @@ export const getOpenTasksCount = createAsyncThunk(
     try {
       const token = thunkAPI.getState().auth.user.accesstoken;
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get(`/api/tasks/open-count`, config);
+      const res = await api.get(`/api/tasks/open-count`, config);
       return res.data.openTasks;
     } catch (error) {
       const message =
@@ -144,9 +145,27 @@ export const getOpenTasksCount = createAsyncThunk(
   }
 );
 
+export const getOverdueTasks = createAsyncThunk(
+  "tasks/getOverdue",
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.accesstoken;
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const res = await api.get("/api/tasks/overdue", config);
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
+    }
+  }
+);
+
+
 const initialState = {
   openCount: 0,
   tasks: [],
+  overdue: [],
   status: "idle",
   error: null,
   pagination: {
@@ -210,7 +229,10 @@ const tasksSlice = createSlice({
       })
       .addCase(getOpenTasksCount.fulfilled, (state, action) => {
         state.openCount = action.payload;
-      });
+      })
+      .addCase(getOverdueTasks.fulfilled, (state, action) => {
+      state.overdue = action.payload;
+    });
   },
 });
 

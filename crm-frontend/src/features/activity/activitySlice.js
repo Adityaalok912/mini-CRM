@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import api from "../../utils/api";
 
 const API_URL = '/api/activity';
 
@@ -12,7 +13,7 @@ export const getLatestActivity = createAsyncThunk('activity/getLatest', async (_
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await axios.get(API_URL, config);
+    const response = await api.get(API_URL, config);
     return response.data;
   } catch (error) {
     const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();

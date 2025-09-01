@@ -55,7 +55,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/customers', customerRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
 //
 

@@ -91,13 +91,18 @@ export const loginUser = asyncHandler( async (req, res) =>{
 //route POST /api/auth/refresh
 //@access Public
 export const refreshToken = asyncHandler ( async(req, res) => {
-  const { token } = req.body;
+   const token = req.headers.authorization.split(' ')[1];
+//   const { token } = req.body;
   if (!token) return res.status(401).json({ message: "No refresh token" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const accessToken = generateToken(decoded.id, decoded.role);
-    res.json({ accessToken });
+    // Verify user still exists
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(401).json({ message: "User not found" });
+    
+    const accesstoken = generateToken(decoded.id);
+    res.json( {accesstoken });
   } catch (error) {
     res.status(403).json({ message: "Invalid refresh token" });
   }
@@ -128,7 +133,7 @@ export  const getMe = asyncHandler( async (req, res) =>{
 //generate JWT 
 const generateToken = (id) =>{
     return jwt.sign({id},process.env.JWT_SECRET,{
-        expiresIn: '7d',
+        expiresIn: '1m',
     });
 }
 //generate refresh token

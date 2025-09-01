@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../../utils/api";
 
 const API_URL = "/api/leads";
 
@@ -19,116 +20,133 @@ const initialState = {
 export const createLead = createAsyncThunk(
   "leads/createLead",
   async (leadData, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(`http://localhost:5000/api/leads`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth.user.accesstoken}`,
-      },
-      body: JSON.stringify(leadData),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to create lead");
+    try {
+      const { auth } = thunkAPI.getState();
+
+      const res = await api.post(`${API_URL}`, leadData, {
+        headers: {
+          Authorization: `Bearer ${auth.user.accesstoken}`,
+        },
+      });
+
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return data;
   }
 );
 
 export const fetchLeads = createAsyncThunk(
   "leads/fetchLeads",
-  async (page, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(
-      `http://localhost:5000/api/leads?page=${page}`,
-      {
+  async ({ page, status = "", search = "" }, thunkAPI) => {
+    try {
+      const { auth } = thunkAPI.getState();
+
+      const res = await api.get(`${API_URL}`, {
+        params: { page, status, search },
         headers: {
           Authorization: `Bearer ${auth.user.accesstoken}`,
         },
-      }
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch leads");
+      });
+
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return data;
   }
 );
 
 export const updateLead = createAsyncThunk(
   "leads/updateLead",
   async ({ id, leadData }, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(`http://localhost:5000/api/leads/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${auth.user.accesstoken}`,
-      },
-      body: JSON.stringify(leadData),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to update lead");
+    try {
+      const { auth } = thunkAPI.getState();
+
+      const res = await api.patch(`${API_URL}/${id}`, leadData, {
+        headers: {
+          Authorization: `Bearer ${auth.user.accesstoken}`,
+        },
+      });
+
+      return res.data; // updated lead object
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return data; // updated lead object
   }
 );
 
 export const deleteLead = createAsyncThunk(
   "leads/deleteLead",
   async (leadId, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(`http://localhost:5000/api/leads/${leadId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${auth.user.accesstoken}`,
-      },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to delete lead");
+    try {
+      const { auth } = thunkAPI.getState();
+
+      await api.delete(`${API_URL}/${leadId}`, {
+        headers: {
+          Authorization: `Bearer ${auth.user.accesstoken}`,
+        },
+      });
+
+      return leadId; // return only ID to remove from state
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return leadId; // return only ID to remove from state
   }
 );
+
+
 
 export const fetchLeadById = createAsyncThunk(
   "leads/fetchLeadById",
   async (leadId, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(`http://localhost:5000/api/leads/${leadId}`, {
-      headers: {
-        Authorization: `Bearer ${auth.user.accesstoken}`,
-      },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch lead");
+    try {
+      const { auth } = thunkAPI.getState();
+
+      const res = await api.get(`${API_URL}/${leadId}`, {
+        headers: {
+          Authorization: `Bearer ${auth.user.accesstoken}`,
+        },
+      });
+
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return data;
   }
 );
 
 export const convertLead = createAsyncThunk(
   "leads/convertLead",
   async (leadId, thunkAPI) => {
-    const { auth } = thunkAPI.getState();
-    const response = await fetch(
-      `http://localhost:5000/api/leads/${leadId}/convert`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${auth.user.accesstoken}`,
-        },
-      }
-    );
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to convert lead");
+    try {
+      const { auth } = thunkAPI.getState();
+
+      const res = await api.post(
+        `${API_URL}/${leadId}/convert`,
+        {}, // body (empty in this case)
+        {
+          headers: {
+            Authorization: `Bearer ${auth.user.accesstoken}`,
+          },
+        }
+      );
+
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
     }
-    return data;
   }
 );
 
@@ -143,7 +161,7 @@ export const getLeadStats = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const res = await axios.get(`${API_URL}/stats`, config);
+      const res = await api.get(`${API_URL}/stats`, config);
       return res.data;
     } catch (error) {
       const message =
@@ -162,7 +180,7 @@ export const getLeadsStatusCount = createAsyncThunk(
     try {
       const token = thunkAPI.getState().auth.user.accesstoken;
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get(`/api/leads/status-count`, config);
+      const res = await api.get(`/api/leads/status-count`, config);
       return res.data;
     } catch (error) {
       const message =

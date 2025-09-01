@@ -19,6 +19,8 @@ import CustomerDetailPage from "./features/customers/CustomerDetailPage";
 import TasksPage from "./features/tasks/TasksPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRoute from "./components/AdminRoute";
+import UserManagementPage from "./features/user/UserManagementPage";
+import UserDetailPage from "./features/user/UserDetailPage";
 
 // A protected route component that redirects unauthenticated users
 const ProtectedRoute = ({ children }) => {
@@ -89,6 +91,24 @@ const App = () => {
                 element={
                   <AdminRoute>
                     <RegisterPage />
+                  </AdminRoute>
+                }
+              />
+
+              <Route
+                path="/users"
+                element={
+                  <AdminRoute>
+                    <UserManagementPage />
+                  </AdminRoute>
+                }
+              />
+
+              <Route
+                path="/users/:id"
+                element={
+                  <AdminRoute>
+                    <UserDetailPage />
                   </AdminRoute>
                 }
               />

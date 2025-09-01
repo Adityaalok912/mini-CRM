@@ -135,3 +135,25 @@ export const getOpenTasksCount = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// @desc    Get overdue tasks (Admin: all, Agent: own)
+// @route   GET /api/tasks/overdue
+// @access  Private
+export const getOverdueTasks = async (req, res) => {
+  try {
+    const filter =
+      req.user.role === "agent" ? { owner: req.user._id } : {};
+
+    filter.dueDate = { $lt: new Date() }; // overdue = past due date
+    filter.status = { $ne: "Done" }; // not completed
+
+    const tasks = await Task.find(filter)
+      .sort({ dueDate: 1 })
+      .populate("owner", "name email");
+
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
