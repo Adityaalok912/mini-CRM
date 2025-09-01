@@ -74,6 +74,7 @@ export const loginUser = asyncHandler( async (req, res) =>{
             _id: user.id,
             name: user.name,
             email: user.email,
+            role: user.role,
             accesstoken:generateToken(user.id),
             refreshtoken: generateRefreshToken(user.id),
         });
@@ -122,10 +123,12 @@ export  const getMe = asyncHandler( async (req, res) =>{
 
 
 
+
+
 //generate JWT 
 const generateToken = (id) =>{
     return jwt.sign({id},process.env.JWT_SECRET,{
-        expiresIn: '30m',
+        expiresIn: '7d',
     });
 }
 //generate refresh token

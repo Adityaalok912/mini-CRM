@@ -22,7 +22,7 @@ export const getCustomers = async (req, res) => {
 
     
     const filter = req.user.role === "agent" ? { owner: req.user._id } : {};
-
+    filter.archived = false;
     
     const totalCustomers = await Customer.countDocuments(filter);
 
@@ -48,6 +48,54 @@ export const getCustomers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Get customer by ID
+// @route   GET /api/customers/:id
+// @access  Private
+export const getCustomerById = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id).populate("owner", "name email");
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    res.status(200).json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Delete customer by ID
+// @route   DELETE /api/customers/:id
+// @access  Private
+export const deleteCustomer = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    // Optional: Only owner or admin can delete
+    if (req.user.role === "agent" && customer.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to delete this customer" });
+    }
+
+    // await customer.deleteOne();
+    customer.archived = true;
+    await customer.save();
+
+    await logActivity(req.user._id, "deleted(soft) customer", "Customer", customer._id);
+
+    res.status(200).json({ message: "Customer deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 // @desc    Create customer
 //route POST /api/customers
@@ -116,6 +164,27 @@ export const addNote = async (req, res) => {
 
     res.json(customer);
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// @desc   Get total customers count
+// @route  GET /api/customers/count
+// @access Private
+export const getCustomersCount = async (req, res) => {
+  try {
+    let query = {};
+
+    if (req.user.role !== "admin") {
+      query.owner = req.user._id; // adjust field name if schema uses "createdBy"
+    }
+
+    const count = await Customer.countDocuments(query);
+
+    res.json({ totalCustomers: count });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };

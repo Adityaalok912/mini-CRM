@@ -8,7 +8,8 @@ const customerSchema = new mongoose.Schema({
   notes: [{ body: String, createdAt: { type: Date, default: Date.now } }],
   tags: [String],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  deals: [String]
+  deals: [String],
+  archived: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const Customer = mongoose.model("Customer", customerSchema);

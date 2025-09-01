@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
   title: {type: String},
-  dueDate: {type: Date},
+  description:{type: String},
+  dueDate: {type: Date,  required: true },
   status: { type: String, enum: ["Open", "In Progress", "Done"], default: "Open" },
   priority: { type: String, enum: ["Low", "Medium", "High"], default: "Medium" },
   relatedTo: { type: String, enum: ["Lead", "Customer"], required: true },
