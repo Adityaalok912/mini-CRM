@@ -135,7 +135,7 @@ frontend/
 │   │
 │   ├── App.js                # Main routes with ProtectedRoute
 │   ├── index.js              # Entry point
-│
+│   ├──seed.js
 │── public/
 │   ├── index.html
 │   ├── favicon.ico
@@ -161,6 +161,11 @@ JWT_REFRESH_SECRET=your_jwt_refresh_secret
 Run server:
 
 npm run server
+
+- to create dummy entries in the database -
+  
+npm run seed
+
 
 3️⃣ Frontend Setup
 cd frontend
