@@ -18,13 +18,13 @@ import CustomersPage from "./features/customers/CustomersPage";
 import CustomerDetailPage from "./features/customers/CustomerDetailPage";
 import TasksPage from "./features/tasks/TasksPage";
 import RegisterPage from "./pages/RegisterPage";
+import AdminRoute from "./components/AdminRoute";
 
 // A protected route component that redirects unauthenticated users
 const ProtectedRoute = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
   return user ? children : <Navigate to="/login" />;
 };
-
 
 const App = () => {
   return (
@@ -87,9 +87,9 @@ const App = () => {
               <Route
                 path="/register"
                 element={
-                  <ProtectedRoute>
+                  <AdminRoute>
                     <RegisterPage />
-                  </ProtectedRoute>
+                  </AdminRoute>
                 }
               />
             </Routes>
